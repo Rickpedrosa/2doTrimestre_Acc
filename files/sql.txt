@@ -1,0 +1,29 @@
+CREATE OR REPLACE PROCEDURE getHorasSemanales
+( IN ofertaedu CHAR(3), IN cursillo CHAR(2), IN codigoAsig VARCHAR(6), OUT resultado VARCHAR(200))
+ BEGIN
+ DECLARE horas tinyint(3);
+ DECLARE profe_nombre VARCHAR(40);
+ DECLARE profe_apellidos VARCHAR(40);
+ DECLARE asig_nombre VARCHAR(80);
+
+ SELECT prof.nombre, prof.apellidos, asig.horasSemanales, asig.nombre
+ INTO profe_nombre, profe_apellidos, horas, asig_nombre FROM profesor prof
+ INNER JOIN reparto rep ON prof.codProf = rep.codProf
+ INNER JOIN asignatura asig ON asig.codAsig = rep.codAsig
+ WHERE rep.codOe LIKE ofertaedu AND rep.codCurso LIKE cursillo AND rep.codAsig LIKE codigoAsig;
+
+ SET resultado = profe_nombre + " " + profe_apellidos + " " + "imparte " + asig_nombre + " " + horas + " a la semana.";
+ END
+
+
+
+CREATE FUNCTION getTutor(ofertaedu VARCHAR(3), cursillo VARCHAR(3)) RETURNS VARCHAR(40)
+BEGIN
+DECLARE tutor VARCHAR(3);
+DECLARE nombreTutor VARCHAR(40);
+
+SELECT codTutor INTO tutor FROM curso WHERE ofertaedu LIKE codOe AND cursillo LIKE codCurso;
+SELECT nombre INTO nombreTutor FROM profesor WHERE codProf LIKE tutor;
+
+RETURN nombreTutor;
+END
